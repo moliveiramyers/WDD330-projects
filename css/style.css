@@ -1082,11 +1082,11 @@ header {
 
   body {
     padding-bottom: 41px;
-    font-size: 0.5rem;
   }
    main,
   #main-content {
     padding-bottom: 70px;
+    
   }
 
   .menu-btn,
@@ -1110,7 +1110,7 @@ header {
     background: #ffffff44;
   }
   .bottom-nav {
-    font-size: 1.5rem;
+        font-size: 0.75rem;
     position: fixed;
     bottom: 0;
     left: 0;
