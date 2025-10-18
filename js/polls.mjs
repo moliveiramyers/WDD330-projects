@@ -8,7 +8,7 @@ export async function renderPage() {
 
         const activePolls = polls.filter(p => p.active);
         const pollsHtml = activePolls.map(poll => {
-        const optionsHtml = poll.options.map((opt, i) => `
+            const optionsHtml = poll.options.map((opt, i) => `
           <li class="poll-option">
             <span class="option-label">${opt}</span>
             <div class="vote-bar-container">
@@ -80,105 +80,6 @@ function markVoted(pollId) {
     voted[pollId] = true;
     localStorage.setItem("votedPolls", JSON.stringify(voted));
 }
-
-// export async function pollCreator() {
-//     const form = document.getElementById("create-poll-form");
-//     const mainContent = document.getElementById("main-content");
-
-//     form.addEventListener("submit", async (e) => {
-//         e.preventDefault();
-//         const title = form.title.value;
-//         const description = form.description.value;
-//         const options = form.options.value.split(",");
-//         const votes = options.map(() => 0);
-
-//         try {
-//             const res = await fetch(API_URL, {
-//                 method: "POST",
-//                 headers: { "Content-Type": "application/json" },
-//                 body: JSON.stringify({
-//                     title,
-//                     description,
-//                     options,
-//                     votes,
-//                     active: true
-//                 })
-//             });
-
-//             const newPoll = await res.json();
-
-//             document.getElementById("create-result").innerHTML = `Poll created! ID: ${newPoll.id}`;
-
-//             // Add the new poll to the list dynamically
-//             const pollsList = mainContent.querySelector(".polls-list");
-//             if (pollsList) {
-//                 const pollCard = document.createElement("div");
-//                 pollCard.classList.add("poll-card");
-//                 pollCard.dataset.id = newPoll.id;
-
-//                 const pollTitle = document.createElement("h3");
-//                 pollTitle.textContent = newPoll.title;
-//                 pollCard.appendChild(pollTitle);
-
-//                 const ul = document.createElement("ul");
-//                 newPoll.options.forEach((opt, i) => {
-//                     const li = document.createElement("li");
-//                     li.classList.add("poll-option");
-
-//                     // Option label on top
-//                     const label = document.createElement("span");
-//                     label.classList.add("option-label");
-//                     label.textContent = opt;
-
-//                     // Bar container
-//                     const barContainer = document.createElement("div");
-//                     barContainer.classList.add("vote-bar-container");
-
-//                     const bar = document.createElement("div");
-//                     bar.classList.add("vote-bar");
-//                     bar.style.width = `${getVotePercent(newPoll.votes[i], newPoll.votes)}%`;
-//                     bar.style.backgroundColor = getColor(i);
-//                     barContainer.appendChild(bar);
-
-//                     // Vote button and count below the bar
-//                     const bottomContainer = document.createElement("div");
-//                     bottomContainer.classList.add("option-bottom");
-
-//                     const voteBtn = document.createElement("button");
-//                     voteBtn.classList.add("vote-btn");
-//                     voteBtn.dataset.index = i;
-//                     voteBtn.dataset.id = newPoll.id;
-//                     voteBtn.textContent = "Vote";
-
-//                     const count = document.createElement("span");
-//                     count.classList.add("vote-count");
-//                     count.textContent = newPoll.votes[i];
-
-//                     bottomContainer.appendChild(voteBtn);
-//                     bottomContainer.appendChild(count);
-
-//                     // Append all in order
-//                     li.appendChild(label);
-//                     li.appendChild(barContainer);
-//                     li.appendChild(bottomContainer);
-
-//                     ul.appendChild(li);
-//                 });
-
-//                 pollCard.appendChild(ul);
-
-//                 updatePollUI(pollCard, newPoll.id);
-//                 pollsList.appendChild(pollCard);
-//             }
-
-//             form.reset(); // clear form fields
-//         } catch (err) {
-//             document.getElementById("create-result").innerHTML = "Error creating poll.";
-//             console.error(err);
-//         }
-//     });
-// }
-
 export async function pollCreator() {
     const form = document.getElementById("create-poll-form");
 
@@ -326,3 +227,90 @@ document.addEventListener("click", async e => {
         });
     }
 });
+
+const pollNotificationsContainer = document.getElementById("poll-notifications");
+
+
+// export async function loadPollNotifications(loadPage) {
+//     const pollNotificationsContainer = document.getElementById("poll-notifications");
+
+//     try {
+//         const res = await fetch(API_URL);
+//         if (!res.ok) throw Error("Failed to fetch polls");
+//         const polls = await res.json();
+
+//         const activePolls = polls.filter(poll => poll.active);
+
+//         pollNotificationsContainer.innerHTML = activePolls.length
+//             ? activePolls.map(poll => `<div class="poll-notification" data-id="${poll.id}">${poll.title}</div>`).join("")
+//             : "<p>No active polls</p>";
+
+
+//         pollNotificationsContainer.querySelectorAll(".poll-notification").forEach(el => {
+//             el.addEventListener("click", async () => {
+//                 const pollId = el.dataset.id;
+
+//                 await loadPage("polls");
+
+//                 const pollCard = document.querySelector(`.poll-card[data-id='${pollId}']`);
+//                 if (pollCard) {
+//                     pollCard.scrollIntoView({ behavior: "smooth", block: "center" });
+//                     pollCard.classList.add("highlight");
+//                     setTimeout(() => pollCard.classList.remove("highlight"), 2000);
+
+//                 }
+//             })
+//         });
+//     }
+//     catch (err) {
+//         console.log("Erro ao carregar notificações de polls:", err);
+//         pollNotificationsContainer.innerHTML = `<p>Error loading polls: ${err.message}</p>`;
+
+//     }
+// }
+
+export async function loadPollNotifications(loadPage) {
+    const pollNotificationsContainer = document.getElementById("poll-notifications");
+
+    try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw Error("Failed to fetch polls");
+        const polls = await res.json();
+
+        const activePolls = polls.filter(poll => poll.active);
+
+        pollNotificationsContainer.innerHTML = activePolls.length
+            ? activePolls.map(poll => `<div class="poll-notification" data-id="${poll.id}">${poll.title}</div>`).join("")
+            : "<p>No active polls</p>";
+
+        // pollNotificationsContainer.querySelectorAll(".poll-notification").forEach(el => {
+        //     el.addEventListener("click", async () => {
+        //         const pollId = el.dataset.id;
+
+        //         // Load the polls page
+        //         await loadPage("polls");
+
+        //         // Highlight the selected poll
+        //         const pollCard = document.querySelector(`.poll-card[data-id='${pollId}']`);
+        //         if (pollCard) {
+        //             pollCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        //             pollCard.classList.add("highlight");
+        //             setTimeout(() => pollCard.classList.remove("highlight"), 2000);
+        //         }
+        //     });
+        // });
+    } catch (err) {
+        console.log("Erro ao carregar notificações de polls:", err);
+        pollNotificationsContainer.innerHTML = `<p>Error loading polls: ${err.message}</p>`;
+    }
+}
+export function setupPollNotifications(loadPage) {
+    const container = document.getElementById("poll-notifications");
+    if (!container) return;
+
+    container.querySelectorAll(".poll-notification").forEach(el => {
+        el.addEventListener("click", () => {
+            loadPage("polls");
+        });
+    });
+}

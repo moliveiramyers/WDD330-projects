@@ -1,13 +1,14 @@
 import { login, logout, observeUser, restoreUser } from "./auth.mjs";
 import { attachPostHandlers } from "./posts.mjs";
 import { loadUpcomingEvents } from "./events.mjs";
+import { loadPollNotifications, setupPollNotifications } from "./polls.mjs";
 
 
 document.addEventListener("DOMContentLoaded", () => {
   restoreUser();
   observeUser();
   loadUpcomingEvents();
-
+  loadPollNotifications();
 
 
   document.getElementById("login-btn").addEventListener("click", login);
@@ -48,11 +49,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-
-
-
 // SIGN IN WITH GOOGLE & ACCOUNTS
-
 
 document.addEventListener("DOMContentLoaded", () => {
   restoreUser(); // restores from localStorage if available
@@ -62,12 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
-
-
-
 // load the Main Content from index.html
-
 
 const mainContent = document.getElementById("main-content");
 
@@ -84,26 +76,17 @@ document.querySelectorAll(".nav a").forEach(link => {
 
 // LoadPage
 async function loadPage(page) {
-
-
   mainContent.innerHTML = "<p>Loading...</p>";
-
-
-
 
   try {
     const module = await import(`./${page}.mjs`);
     const content = await module.renderPage();
     mainContent.innerHTML = content;
 
-
-
-
-
-
     if (page === "polls") {
       if (module.pollCreator) module.pollCreator(); document.querySelectorAll(".poll-card").forEach(card => {
         module.updatePollUI(card);
+        loadPollNotifications();
       });
     }
   } catch (err) {
@@ -113,40 +96,10 @@ async function loadPage(page) {
 }
 
 
-// Destaque + Notifications
-
-
-const pollNotificationsContainer = document.getElementById("poll-notifications");
-
-
-export async function loadPollNotifications() {
-  const polls = [
-    { title: "Poll 1", status: "pending" },
-    { title: "Poll 2", status: "pending" }
-  ];
-
-
-  pollNotificationsContainer.innerHTML = polls
-    .map(p => `<div class="poll-notification">${p.title}</div>`)
-    .join("");
-}
-
-
-
-
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
   attachPostHandlers();
-  loadPollNotifications();
-});
-
-
-
-
-
-
-
-
-window.addEventListener("DOMContentLoaded", () => {
+  await loadPollNotifications();
+  setupPollNotifications(loadPage)
   const savedPage = sessionStorage.getItem("lastPage");
   const page = location.hash.replace("#", "") || savedPage || "home";
   loadPage(page);

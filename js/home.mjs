@@ -1,7 +1,7 @@
 import { renderPage as renderPosts, attachPostHandlers, attachPostHandlersForm, attachCommentHandlers} from "./posts.mjs";
 import { attachMusicSearchHandlers, attachMusicPlayHandlers } from "./music.mjs";
 import { renderPage as renderQuote } from "./quotes.mjs";
-import { loadPollNotifications } from "./main.mjs";
+import { loadPollNotifications } from "./polls.mjs";
 
 
 export async function renderPage() {
@@ -21,7 +21,6 @@ export async function renderPage() {
     attachCommentHandlers();
     attachMusicSearchHandlers();
     attachMusicPlayHandlers();
-    loadPollNotifications();
     }, 0);
     return html;
 }
