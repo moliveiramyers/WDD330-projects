@@ -8,7 +8,7 @@ export async function renderPage() {
 
         const activePolls = polls.filter(p => p.active);
         const pollsHtml = activePolls.map(poll => {
-            const optionsHtml = poll.options.map((opt, i) => `
+        const optionsHtml = poll.options.map((opt, i) => `
           <li class="poll-option">
             <span class="option-label">${opt}</span>
             <div class="vote-bar-container">
@@ -20,13 +20,13 @@ export async function renderPage() {
       `).join("");
 
             return `
-        <div class="poll-card" data-id="${poll.id}">
-          <h3>${poll.title}</h3>
-          <p class="poll-description">${poll.description || ""}</p>
-          <ul>${optionsHtml}</ul>
-          <button class="archive-btn" data-id="${poll.id}">Archive</button>
-          <button class="delete-btn" data-id="${poll.id}">Delete</button>
-        </div>
+            <div class="poll-card" data-id="${poll.id}">
+                <h3>${poll.title}</h3>
+                <p class="poll-description">${poll.description || ""}</p>
+                <ul>${optionsHtml}</ul>
+                <button class="archive-btn" data-id="${poll.id}">Archive</button>
+                <button class="delete-btn" data-id="${poll.id}">Delete</button>
+            </div>
       `;
         }).join("");
 
@@ -71,28 +71,132 @@ export function updatePollUI(pollCard, pollId) {
 }
 
 function hasVoted(pollId) {
-    const voted = JSON.parse(localStorage.getItem("votedPolls") || "[]");
-    return voted.includes(pollId);
+    const voted = JSON.parse(localStorage.getItem("votedPolls") || "{}");
+    return voted[pollId] === true;
 }
 
 function markVoted(pollId) {
-    const voted = JSON.parse(localStorage.getItem("votedPolls") || "[]");
-    voted.push(pollId);
+    const voted = JSON.parse(localStorage.getItem("votedPolls") || "{}");
+    voted[pollId] = true;
     localStorage.setItem("votedPolls", JSON.stringify(voted));
 }
+
+// export async function pollCreator() {
+//     const form = document.getElementById("create-poll-form");
+//     const mainContent = document.getElementById("main-content");
+
+//     form.addEventListener("submit", async (e) => {
+//         e.preventDefault();
+//         const title = form.title.value;
+//         const description = form.description.value;
+//         const options = form.options.value.split(",");
+//         const votes = options.map(() => 0);
+
+//         try {
+//             const res = await fetch(API_URL, {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify({
+//                     title,
+//                     description,
+//                     options,
+//                     votes,
+//                     active: true
+//                 })
+//             });
+
+//             const newPoll = await res.json();
+
+//             document.getElementById("create-result").innerHTML = `Poll created! ID: ${newPoll.id}`;
+
+//             // Add the new poll to the list dynamically
+//             const pollsList = mainContent.querySelector(".polls-list");
+//             if (pollsList) {
+//                 const pollCard = document.createElement("div");
+//                 pollCard.classList.add("poll-card");
+//                 pollCard.dataset.id = newPoll.id;
+
+//                 const pollTitle = document.createElement("h3");
+//                 pollTitle.textContent = newPoll.title;
+//                 pollCard.appendChild(pollTitle);
+
+//                 const ul = document.createElement("ul");
+//                 newPoll.options.forEach((opt, i) => {
+//                     const li = document.createElement("li");
+//                     li.classList.add("poll-option");
+
+//                     // Option label on top
+//                     const label = document.createElement("span");
+//                     label.classList.add("option-label");
+//                     label.textContent = opt;
+
+//                     // Bar container
+//                     const barContainer = document.createElement("div");
+//                     barContainer.classList.add("vote-bar-container");
+
+//                     const bar = document.createElement("div");
+//                     bar.classList.add("vote-bar");
+//                     bar.style.width = `${getVotePercent(newPoll.votes[i], newPoll.votes)}%`;
+//                     bar.style.backgroundColor = getColor(i);
+//                     barContainer.appendChild(bar);
+
+//                     // Vote button and count below the bar
+//                     const bottomContainer = document.createElement("div");
+//                     bottomContainer.classList.add("option-bottom");
+
+//                     const voteBtn = document.createElement("button");
+//                     voteBtn.classList.add("vote-btn");
+//                     voteBtn.dataset.index = i;
+//                     voteBtn.dataset.id = newPoll.id;
+//                     voteBtn.textContent = "Vote";
+
+//                     const count = document.createElement("span");
+//                     count.classList.add("vote-count");
+//                     count.textContent = newPoll.votes[i];
+
+//                     bottomContainer.appendChild(voteBtn);
+//                     bottomContainer.appendChild(count);
+
+//                     // Append all in order
+//                     li.appendChild(label);
+//                     li.appendChild(barContainer);
+//                     li.appendChild(bottomContainer);
+
+//                     ul.appendChild(li);
+//                 });
+
+//                 pollCard.appendChild(ul);
+
+//                 updatePollUI(pollCard, newPoll.id);
+//                 pollsList.appendChild(pollCard);
+//             }
+
+//             form.reset(); // clear form fields
+//         } catch (err) {
+//             document.getElementById("create-result").innerHTML = "Error creating poll.";
+//             console.error(err);
+//         }
+//     });
+// }
+
 export async function pollCreator() {
     const form = document.getElementById("create-poll-form");
-    const mainContent = document.getElementById("main-content");
+
+    if (!form) return; // Safety check
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const title = form.title.value;
-        const description = form.description.value;
-        const options = form.options.value.split(",");
+
+        const title = form.title.value.trim();
+        const description = form.description.value.trim();
+        const options = form.options.value.split(",").map(opt => opt.trim()).filter(opt => opt);
+        if (!title || options.length === 0) return;
+
         const votes = options.map(() => 0);
 
         try {
-            const res = await fetch(API_URL, {
+            // POST new poll
+            await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -104,79 +208,20 @@ export async function pollCreator() {
                 })
             });
 
-            const newPoll = await res.json();
+            // Clear form container
+            const container = document.getElementById("poll-form-container");
+            container.innerHTML = `<button id="add-poll-btn">Add Poll</button>`;
 
-            document.getElementById("create-result").innerHTML = `Poll created! ID: ${newPoll.id}`;
+            // Re-render entire poll list
+            await renderPage();
 
-            // Add the new poll to the list dynamically
-            const pollsList = mainContent.querySelector(".polls-list");
-            if (pollsList) {
-                const pollCard = document.createElement("div");
-                pollCard.classList.add("poll-card");
-                pollCard.dataset.id = newPoll.id;
-
-                const pollTitle = document.createElement("h3");
-                pollTitle.textContent = newPoll.title;
-                pollCard.appendChild(pollTitle);
-
-                const ul = document.createElement("ul");
-                newPoll.options.forEach((opt, i) => {
-                    const li = document.createElement("li");
-                    li.classList.add("poll-option");
-
-                        // Option label on top
-                        const label = document.createElement("span");
-                        label.classList.add("option-label");
-                        label.textContent = opt;
-
-                        // Bar container
-                        const barContainer = document.createElement("div");
-                        barContainer.classList.add("vote-bar-container");
-
-                        const bar = document.createElement("div");
-                        bar.classList.add("vote-bar");
-                        bar.style.width = `${getVotePercent(newPoll.votes[i], newPoll.votes)}%`;
-                        bar.style.backgroundColor = getColor(i);
-                        barContainer.appendChild(bar);
-
-                        // Vote button and count below the bar
-                        const bottomContainer = document.createElement("div");
-                        bottomContainer.classList.add("option-bottom");
-
-                        const voteBtn = document.createElement("button");
-                        voteBtn.classList.add("vote-btn");
-                        voteBtn.dataset.index = i;
-                        voteBtn.dataset.id = newPoll.id;
-                        voteBtn.textContent = "Vote";
-
-                        const count = document.createElement("span");
-                        count.classList.add("vote-count");
-                        count.textContent = newPoll.votes[i];
-
-                        bottomContainer.appendChild(voteBtn);
-                        bottomContainer.appendChild(count);
-
-                        // Append all in order
-                        li.appendChild(label);
-                        li.appendChild(barContainer);
-                        li.appendChild(bottomContainer);
-
-                        ul.appendChild(li);
-                    });
-
-                pollCard.appendChild(ul);
-
-                updatePollUI(pollCard, newPoll.id);
-                pollsList.appendChild(pollCard);
-            }
-
-            form.reset(); // clear form fields
         } catch (err) {
-            document.getElementById("create-result").innerHTML = "Error creating poll.";
+            document.getElementById("create-result").textContent = "Error creating poll.";
             console.error(err);
         }
     });
 }
+
 
 // Global click handler
 document.addEventListener("click", async e => {

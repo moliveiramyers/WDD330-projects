@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "title": "Noite Familiar com a Ala",
+    "description": "Uma noite especial de integração e partilha com todos os membros da ala. Traga a sua família e venha participar de atividades, mensagens e momentos de convívio inspiradores.",
+    "date": "2025-10-22",
+    "time": "19:00",
+    "location": "Capela de Póvoa de Varzim"
+  },
+  {
+    "id": 2,
+    "title": "Noite de Halloween",
+    "description": "Vamos celebrar o Halloween à nossa maneira! Vista-se a caráter e junte-se a nós para uma noite divertida com jogos, doces e muitas surpresas.",
+    "date": "2025-10-31",
+    "time": "19:30",
+    "location": "Local a definir"
+  },
+  {
+    "id": 3,
+    "title": "Devocional com o Élder Bernskov",
+    "description": "Uma devocional especial voltada para os jovens adultos, com mensagens inspiradoras e oportunidades de fortalecer a fé e a comunhão.",
+    "date": "2025-11-07",
+    "time": "19:30",
+    "location": "Capela de Braga"
+  },
+  {
+    "id": 4,
+    "title": "Viagem ao Templo",
+    "description": "Uma viagem espiritual ao Templo de Lisboa, com incentivo à participação de todos os jovens adultos. O valor simbólico de 5 euros ajuda a cobrir os custos de transporte.",
+    "date": "2025-11-22",
+    "time": "05:00",
+    "location": "Templo de Lisboa"
+  }
+]

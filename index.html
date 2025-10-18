@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JA de Povoa de Varzim | Home</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-auth-compat.js"></script>
+
     <script type="module" src="js/main.mjs"></script>
 </head>
 
@@ -20,11 +23,13 @@
             <a href="#account" data-page="account">Account</a>
             <a href="#feedback" data-page="feedback">Feedback</a>
         </nav>
-
         <div class="overlay"></div>
         <h1 class="site-name">JA de Povoa de Varzim</h1>
         <div class="account-settings">
-            <img src="account-icon.png" alt="Account">
+            <img id="user-avatar" src="account-icon.png" alt="Account" class="avatar" />
+            <div id="user-name">Guest</div>
+            <button id="login-btn">Login with Google</button>
+            <button id="logout-btn" style="display:none;">Logout</button>
         </div>
     </header>
 
@@ -39,12 +44,16 @@
             <h2>Home</h2>
             <div id="section-frame">
                 <div id="home-quote" class="home-section"></div>
-                <div id="home-posts" class="home-section"></div>
+                <div id="feed">
+                    <form id="create-post-form"></form>
+                    <article class="feed-card"></article>
+                </div>
             </div>
         </section>
 
         <aside class="right">
             <h2>Upcoming Events</h2>
+            <div id="upcoming-events"></div>
         </aside>
     </main>
 
